@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-etp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloud-etp
+  template:
+    metadata:
+      labels:
+        app: cloud-etp
+    spec:
+      containers:
+        - name: cloud-etp
+          image: myorg/cloud_etp:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production

@@ -1,0 +1,22 @@
+name: Trigger Jenkins on push
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  trigger-jenkins:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins job via API
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          JENKINS_USER: ${{ secrets.JENKINS_USER }}
+          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
+          JENKINS_JOB: ${{ secrets.JENKINS_JOB }}
+        run: |
+          set -e
+          # get crumb for CSRF protection
+          CRUMB=$(curl -s -u "$JENKINS_USER:$JENKINS_API_TOKEN" "$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)")
+          echo "Jenkins crumb: $CRUMB"
+          curl -X POST -u "$JENKINS_USER:$JENKINS_API_TOKEN" -H "$CRUMB" "$JENKINS_URL/job/$JENKINS_JOB/build?delay=0sec"
