@@ -65,8 +65,9 @@ pipeline {
                             sh "export KUBECONFIG=$KUBECONFIG_FILE"
                             sh "kubectl set image deployment/cloud-etp cloud-etp=${tag} --record || kubectl apply -f k8s/"
                         } else {
-                            // On Windows, pass kubeconfig directly to kubectl via --kubeconfig flag
-                            bat "kubectl set image deployment/cloud-etp cloud-etp=${tag} --kubeconfig=%KUBECONFIG_FILE% --record || kubectl apply -f k8s/ --kubeconfig=%KUBECONFIG_FILE%"
+                            // On Windows, copy kubeconfig to workspace and use explicit path
+                            bat "copy \"%KUBECONFIG_FILE%\" \"%WORKSPACE%\\kubeconfig.yaml\""
+                            bat "kubectl --kubeconfig=\"%WORKSPACE%\\kubeconfig.yaml\" set image deployment/cloud-etp cloud-etp=${tag} --record || kubectl --kubeconfig=\"%WORKSPACE%\\kubeconfig.yaml\" apply -f k8s/"
                         }
                     }
                 }
