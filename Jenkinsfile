@@ -27,15 +27,15 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: env.DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     script {
-                        def tag = "${amvar0909/cloud_ETP}:${env.BUILD_NUMBER}"
+                        def tag = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
                         if (isUnix()) {
                             sh "docker build -t ${tag} ."
-                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin ${docker.io}"
+                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin ${REGISTRY}"
                             sh "docker push ${tag}"
                         } else {
-                            bat "docker build -t %IMAGE_NAME%:%BUILD_NUMBER% ."
-                            bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin %REGISTRY%"
-                            bat "docker push %IMAGE_NAME%:%BUILD_NUMBER%"
+                            bat "docker build -t ${tag} ."
+                            bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin ${REGISTRY}"
+                            bat "docker push ${tag}"
                         }
                     }
                 }
