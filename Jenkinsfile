@@ -74,11 +74,12 @@ pipeline {
                         def tag = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
 
                         powershell """
-                            kubectl --kubeconfig="$env:KUBECONFIG_FILE" get nodes
-                            kubectl --kubeconfig="$env:KUBECONFIG_FILE" set image deployment/cloud-etp cloud-etp=${tag}
+                            kubectl --kubeconfig=\"$env:KUBECONFIG_FILE\" get nodes
+
+                            kubectl --kubeconfig=\"$env:KUBECONFIG_FILE\" set image deployment/cloud-etp cloud-etp=${tag}
 
                             if (\$LASTEXITCODE -ne 0) {
-                                kubectl --kubeconfig="$env:KUBECONFIG_FILE" apply -f k8s/
+                                kubectl --kubeconfig=\"$env:KUBECONFIG_FILE\" apply -f k8s/
                             }
                         """
                     }
