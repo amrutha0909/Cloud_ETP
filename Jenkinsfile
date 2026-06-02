@@ -32,6 +32,11 @@ pipeline {
                 }
             }
         }
+        stage('Check Host') {
+            steps {
+                bat 'hostname'
+            }
+        }
 
         stage('Docker Build & Push') {
             steps {
@@ -58,7 +63,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Deploy to Kubernetes') {
             when {
                 expression { params.DEPLOY }
@@ -68,20 +73,14 @@ pipeline {
                     script {
                         def tag = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
 
-                        if (isUnix()) {
-                            sh """
-                                export KUBECONFIG=$KUBECONFIG_FILE
-                                kubectl set image deployment/cloud-etp cloud-etp=${tag} || kubectl apply -f k8s/
-                            """
-                        } else {
-                            powershell """
-                                \$env:KUBECONFIG = \$env:KUBECONFIG_FILE
-                                kubectl set image deployment/cloud-etp cloud-etp=${tag}
-                                if (\$LASTEXITCODE -ne 0) {
-                                    kubectl apply -f k8s/
-                                }
-                            """
-                        }
+                        powershell """
+                            kubectl --kubeconfig="$env:KUBECONFIG_FILE" get nodes
+                            kubectl --kubeconfig="$env:KUBECONFIG_FILE" set image deployment/cloud-etp cloud-etp=${tag}
+
+                            if (\$LASTEXITCODE -ne 0) {
+                                kubectl --kubeconfig="$env:KUBECONFIG_FILE" apply -f k8s/
+                            }
+                        """
                     }
                 }
             }
