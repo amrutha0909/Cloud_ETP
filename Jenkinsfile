@@ -62,16 +62,11 @@ pipeline {
                     script {
                         def tag = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
                         if (isUnix()) {
-                            sh 'mkdir -p $WORKSPACE/.kube'
-                            sh 'cp $KUBECONFIG_FILE $WORKSPACE/.kube/config'
-                            sh 'export KUBECONFIG=$WORKSPACE/.kube/config'
-                            // try updating image, fallback to apply
+                            sh "export KUBECONFIG=$KUBECONFIG_FILE"
                             sh "kubectl set image deployment/cloud-etp cloud-etp=${tag} --record || kubectl apply -f k8s/"
                         } else {
-                            bat 'mkdir %WORKSPACE%\\.kube'
-                            bat 'copy %KUBECONFIG_FILE% %WORKSPACE%\\.kube\\config'
-                            bat 'set KUBECONFIG=%WORKSPACE%\\.kube\\config'
-                            bat "kubectl set image deployment/cloud-etp cloud-etp=%IMAGE_NAME%:%BUILD_NUMBER% --record || kubectl apply -f k8s\\"
+                            // On Windows, pass kubeconfig directly to kubectl via --kubeconfig flag
+                            bat "kubectl set image deployment/cloud-etp cloud-etp=${tag} --kubeconfig=%KUBECONFIG_FILE% --record || kubectl apply -f k8s/ --kubeconfig=%KUBECONFIG_FILE%"
                         }
                     }
                 }
