@@ -8,7 +8,7 @@ pipeline {
         REGISTRY = 'docker.io'
         IMAGE_NAME = 'myorg/cloud_etp'
         DOCKER_CREDENTIALS = 'dockerhub'
-        KUBECONFIG_CREDENTIAL = 'kubeconfig-file'
+        KUBECONFIG_CREDENTIAL = 'kubeconfig_file'
     }
     stages {
         stage('Checkout') {
